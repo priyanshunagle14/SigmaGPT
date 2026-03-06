@@ -12,44 +12,51 @@ app.use(cors());
 
 app.use("/api", chatRoutes);
 
+// Start server
 app.listen(PORT, () => {
-    console.log(`server running on ${PORT}`);
+    console.log(`Server running on ${PORT}`);
     connectDB();
 });
 
-const connectDB = async() => {
+// MongoDB connection
+const connectDB = async () => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI);
+        await mongoose.connect(process.env.MONGO_URL);
         console.log("Connected with Database!");
-    } catch(err) {
+    } catch (err) {
         console.log("Failed to connect with Db", err);
     }
-}
+};
 
+// Test OpenAI route
+app.post("/test", async (req, res) => {
+    const options = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+            model: "gpt-4o-mini",
+            messages: [
+                {
+                    role: "user",
+                    content: req.body.message
+                }
+            ]
+        })
+    };
 
-// app.post("/test", async (req, res) => {
-//     const options = {
-//         method: "POST",
-//         headers: {
-//             "Content-Type": "application/json",
-//             "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-//         },
-//         body: JSON.stringify({
-//             model: "gpt-4o-mini",
-//             messages: [{
-//                 role: "user",
-//                 content: req.body.message
-//             }]
-//         })
-//     };
+    try {
+        const response = await fetch(
+            "https://api.openai.com/v1/chat/completions",
+            options
+        );
 
-//     try {
-//         const response = await fetch("https://api.openai.com/v1/chat/completions", options);
-//         const data = await response.json();
-//         //console.log(data.choices[0].message.content); //reply
-//         res.send(data.choices[0].message.content);
-//     } catch(err) {
-//         console.log(err);
-//     }
-// });
-
+        const data = await response.json();
+        res.send(data.choices[0].message.content);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Error connecting to OpenAI");
+    }
+});
