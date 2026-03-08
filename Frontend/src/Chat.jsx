@@ -1,5 +1,5 @@
 import "./Chat.css";
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react"; // ✅ add useRef
 import { MyContext } from "./MyContext";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
@@ -8,8 +8,13 @@ import "highlight.js/styles/github-dark.css";
 function Chat() {
     const {newChat, prevChats, reply} = useContext(MyContext);
     const [latestReply, setLatestReply] = useState(null);
+    const bottomRef = useRef(null); // ✅ add this
 
-    //  Reset latestReply when chat is cleared
+    // ✅ Auto-scroll on every new message or typing update
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [prevChats, latestReply]);
+
     useEffect(() => {
         if (!prevChats?.length) {
             setLatestReply(null);
@@ -70,6 +75,7 @@ function Chat() {
                         </>
                     )
                 }
+                <div ref={bottomRef} /> {/* ✅ scroll anchor */}
             </div>
         </>
     )

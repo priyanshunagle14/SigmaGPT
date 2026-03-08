@@ -25,11 +25,13 @@
     display: flex;
     justify-content: flex-end;
     font-size: 0.9rem;
+    margin-bottom: 1.5rem;
 }
 
 .gptDiv {
     text-align: left;
     font-size: 0.9rem;
+    margin-bottom: 1.5rem;  
 }
 
 .userMessage {
