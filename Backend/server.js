@@ -5,18 +5,12 @@ import mongoose from "mongoose";
 import chatRoutes from "./routes/chat.js";
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(cors());
 
 app.use("/api", chatRoutes);
-
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on ${PORT}`);
-    connectDB();
-});
 
 // MongoDB connection
 const connectDB = async () => {
@@ -27,6 +21,12 @@ const connectDB = async () => {
         console.log("Failed to connect with Db", err);
     }
 };
+
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server running on ${PORT}`);
+    connectDB();
+});
 
 // Test OpenAI route
 app.post("/test", async (req, res) => {
