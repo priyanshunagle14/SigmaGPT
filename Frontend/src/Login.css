@@ -1,0 +1,140 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.authPage {
+    background-color: #212121;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.authBox {
+    background-color: #2f2f2f;
+    padding: 3rem;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    border: 1px solid #3a3a3a;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.authLogo {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.authLogoCircle {
+    width: 52px;
+    height: 52px;
+    background-color: #fff;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #000;
+}
+
+.authBox h2 {
+    color: #fff;
+    font-size: 1.5rem;
+    text-align: center;
+    width: 100%;
+}
+
+.authSubtitle {
+    color: #888;
+    font-size: 0.85rem;
+    text-align: center;
+    width: 100%;
+    margin-top: -0.5rem;
+}
+
+.authInputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.authInput {
+    background-color: #1a1a1a;
+    border: 1px solid #3a3a3a;
+    color: #fff;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    width: 100%;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.authInput::placeholder {
+    color: #666;
+}
+
+.authInput:focus {
+    outline: none;
+    border-color: #777;
+    background-color: #222;
+}
+
+.authBtn {
+    background-color: #fff;
+    color: #000;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    width: 100%;
+}
+
+.authBtn:hover {
+    background-color: #e8e8e8;
+}
+
+.authBtn:active {
+    transform: scale(0.98);
+}
+
+.authError {
+    color: #ff5555;
+    font-size: 0.82rem;
+    text-align: center;
+    background-color: rgba(255, 85, 85, 0.1);
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 85, 85, 0.2);
+    width: 100%;
+}
+
+.authSwitch {
+    color: #888;
+    font-size: 0.85rem;
+    text-align: center;
+    width: 100%;
+}
+
+.authSwitch a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.authSwitch a:hover {
+    text-decoration: underline;
+}

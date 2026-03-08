@@ -7,10 +7,10 @@
     justify-content: space-between;
     align-items: center;
     text-align: center;
+    position: relative; 
 }
 
 /* navbar */
-
 .navbar {
     width: 100%;
     display: flex;
@@ -95,14 +95,12 @@ input:focus {
     color: #b4b4b4;
 }
 
-/* dropdown css */
-
+/* dropdown */
 .dropDown {
-    position: absolute;
-    top: 4rem;
-    right: 4rem;
+    position: fixed; 
+    top: 60px;        
+    right: 1rem;
     width: 150px;
-
     background-color: #323232;
     padding: 0.3rem 0.5rem;
     border-radius: 6px;
@@ -118,8 +116,30 @@ input:focus {
     cursor: pointer;
 }
 
-
 .dropDownItem:hover {
     background-color: rgba(180, 180, 180, 0.1);
     border-radius: 6px;
+}
+
+/* toast */
+.toast {
+    position: fixed;
+    top: 2rem;  
+    left: 57%;
+    transform: translateX(-50%);
+    background-color: #323232;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    z-index: 9999;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    animation: fadeInOut 3s ease forwards;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateX(-50%) translateY(-10px); } 
+    15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
 }

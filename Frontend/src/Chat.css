@@ -1,7 +1,24 @@
 .chats {
     max-width: 700px;
-    overflow-y: scroll;
-    padding: 8rem;
+    width: 100%;
+    height: calc(100vh - 180px);
+    overflow-y: auto;
+    padding: 1rem 2rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.chats::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chats::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.chats::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .userDiv {
@@ -9,7 +26,6 @@
     justify-content: flex-end;
     font-size: 0.9rem;
 }
-
 
 .gptDiv {
     text-align: left;

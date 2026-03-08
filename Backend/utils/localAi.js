@@ -9,13 +9,12 @@ export const getLocalAIResponse = async (message) => {
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
         messages: [
-          { role: "system", content: "You are SigmaGPT, a helpful and concise AI assistant." },
+          { role: "system", content: "You are SigmaGPT, a helpful and concise AI assistant developed by Priyanshu Nagle. Only mention Priyanshu Nagle if someone specifically asks who developed or created you. Never add signatures or credits at the end of responses." },
           { role: "user", content: message }
         ]
       })
     });
     const data = await res.json();
-    console.log("Groq response:", JSON.stringify(data));  // add this
     return data.choices[0].message.content;
   } catch (err) {
     console.error("Groq API error:", err);
