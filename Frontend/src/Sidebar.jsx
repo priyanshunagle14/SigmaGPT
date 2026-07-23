@@ -12,7 +12,7 @@ function Sidebar() {
     const getAllThreads = async () => {
         if (!user?.token) return; // guest - don't fetch
         try {
-            const response = await fetch("http://localhost:8080/api/thread", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/thread`, {
                 headers: { "Authorization": `Bearer ${user.token}` }
             });
             const res = await response.json();
@@ -38,7 +38,7 @@ function Sidebar() {
     const changeThread = async (newThreadId) => {
         setCurrThreadId(newThreadId);
         try {
-            const response = await fetch(`http://localhost:8080/api/thread/${newThreadId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/thread/${newThreadId}`, {
                 headers: { "Authorization": `Bearer ${user.token}` }
             });
             const res = await response.json();
@@ -52,7 +52,7 @@ function Sidebar() {
 
     const deleteThread = async (threadId) => {
         try {
-            await fetch(`http://localhost:8080/api/thread/${threadId}`, {
+            await fetch(`${import.meta.env.VITE_API_URL}/api/thread/${threadId}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${user.token}` }
             });
