@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MyContext } from "./MyContext.jsx";
 import "./Login.css";
+import sigmaLogo from "./assets/sigmagpt-logo.svg";
 
 function Signup() {
     const [username, setUsername] = useState("");
@@ -35,7 +36,7 @@ function Signup() {
         <div className="authPage">
             <div className="authBox">
                 <div className="authLogo">
-                    <img src="/src/assets/sigmagpt-logo.svg" alt="SigmaGPT" className="authLogoImg" />
+                    <img src={sigmaLogo} alt="gpt logo" />
                 </div>
                 <h2>Create account</h2>
                 <p className="authSubtitle">Sign up for SigmaGPT</p>
