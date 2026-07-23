@@ -14,6 +14,7 @@ app.use(cors({
     credentials: true
 }));
 
+app.get('/', (req, res) => res.send('SigmaGPT backend is running'));
 app.use("/api", chatRoutes);
 app.use("/api/auth", authRoutes);
 
