@@ -13,7 +13,6 @@ app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
 }));
-
 app.use("/api", chatRoutes);
 app.use("/api/auth", authRoutes);
 
@@ -30,3 +29,4 @@ const connectDB = async () => {
         console.log("Failed to connect with Db", err);
     }
 };
+

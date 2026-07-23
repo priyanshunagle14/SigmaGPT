@@ -3,6 +3,7 @@ import { useContext, useEffect } from "react";
 import { MyContext } from "./MyContext.jsx";
 import { v1 as uuidv1 } from "uuid";
 import { useNavigate } from "react-router-dom";
+import sigmaLogo from "./assets/sigmagpt-logo.svg";
 
 function Sidebar() {
     const { allThreads, setAllThreads, currThreadId, setNewChat, setPrompt, setReply, setCurrThreadId, setPrevChats, user } = useContext(MyContext);
@@ -65,7 +66,7 @@ function Sidebar() {
     return (
         <section className="sidebar">
             <button onClick={createNewChat}>
-                <img src="/src/assets/sigmagpt-logo.svg" alt="gpt logo" className="logo" />
+                <img src={sigmaLogo} alt="gpt logo" />
                 <span><i className="fa-solid fa-pen-to-square"></i></span>
             </button>
 
