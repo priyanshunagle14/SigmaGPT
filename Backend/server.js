@@ -13,6 +13,10 @@ app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
 }));
+
+
+app.get('/', (req, res) => res.send('SigmaGPT backend is running'));
+
 app.use("/api", chatRoutes);
 app.use("/api/auth", authRoutes);
 
@@ -29,4 +33,7 @@ const connectDB = async () => {
         console.log("Failed to connect with Db", err);
     }
 };
+<<<<<<< HEAD
 
+=======
+>>>>>>> 80fad19b4fb3fdf716846e7858886157f1366740
