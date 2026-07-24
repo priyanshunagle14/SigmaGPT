@@ -5,8 +5,10 @@ import Login from "./Login.jsx";
 import Signup from "./Signup.jsx";
 import { MyContext } from "./MyContext.jsx";
 import { useState } from 'react';
+
 import { v1 as uuidv1 } from "uuid";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 
 function App() {
   const [prompt, setPrompt] = useState("");
@@ -15,6 +17,7 @@ function App() {
   const [prevChats, setPrevChats] = useState([]);
   const [newChat, setNewChat] = useState(true);
   const [allThreads, setAllThreads] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState({
     token: localStorage.getItem("token"),
     username: localStorage.getItem("username")
@@ -34,7 +37,8 @@ function App() {
     prevChats, setPrevChats,
     allThreads, setAllThreads,
     user, setUser,
-    toast, showToast
+    toast, showToast,
+    sidebarOpen, setSidebarOpen,
   };
 
   return (
@@ -44,10 +48,17 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/" element={
-            <div className='app'>
-              <Sidebar />
-              <ChatWindow />
-            </div>
+            <>
+              {sidebarOpen && (
+                <div className="overlay" onClick={() => setSidebarOpen(false)} />
+              )}
+              <div className="app">
+                <Sidebar />
+                <main className="main-content">
+                  <ChatWindow />
+                </main>
+              </div>
+            </>
           } />
         </Routes>
       </MyContext.Provider>

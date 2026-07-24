@@ -6,7 +6,19 @@ import { useNavigate } from "react-router-dom";
 import sigmaLogo from "./assets/sigmagpt-logo.svg";
 
 function Sidebar() {
-    const { allThreads, setAllThreads, currThreadId, setNewChat, setPrompt, setReply, setCurrThreadId, setPrevChats, user } = useContext(MyContext);
+    const {
+        allThreads,
+        setAllThreads,
+        currThreadId,
+        setNewChat,
+        setPrompt,
+        setReply,
+        setCurrThreadId,
+        setPrevChats,
+        user,
+        sidebarOpen,
+        setSidebarOpen
+    } = useContext(MyContext);
     const navigate = useNavigate();
 
     const getAllThreads = async () => {
@@ -33,10 +45,12 @@ function Sidebar() {
         setReply(null);
         setCurrThreadId(uuidv1());
         setPrevChats([]);
+        setSidebarOpen(false);
     };
 
     const changeThread = async (newThreadId) => {
         setCurrThreadId(newThreadId);
+        setSidebarOpen(false);
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/thread/${newThreadId}`, {
                 headers: { "Authorization": `Bearer ${user.token}` }
@@ -64,7 +78,7 @@ function Sidebar() {
     };
 
     return (
-        <section className="sidebar">
+        <section className={`sidebar ${sidebarOpen ? "open" : ""}`}>
             <button onClick={createNewChat}>
                 <img src={sigmaLogo} alt="gpt logo" />
                 <span><i className="fa-solid fa-pen-to-square"></i></span>

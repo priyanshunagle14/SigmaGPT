@@ -1,14 +1,55 @@
 * {
     color: #ececec;
     font-family: Roboto, 'Open Sans', 'Helvetica Neue', sans-serif;
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
 }
 
 body {
-    margin: 0;
-    padding: 0;
+    overflow-x: hidden;
+    background-color: #212121;
 }
 
 .app {
-    background-color: #212121;
     display: flex;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #212121;
+}
+
+/* Tablet & Mobile */
+@media (max-width: 768px) {
+    .app {
+        flex-direction: column;
+    }
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+    /* prevents overflow */
+}
+
+/* overlay — dims background when sidebar is open on mobile */
+.overlay {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .45);
+        z-index: 1000;
+    }
 }

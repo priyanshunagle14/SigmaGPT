@@ -9,11 +9,15 @@ function Signup() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const { setUser, showToast } = useContext(MyContext);
 
     const handleSignup = async () => {
         if (!username || !email || !password) return setError("Please fill all fields");
+        setLoading(true);
+        setError("");
         try {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
                 method: "POST",
@@ -21,7 +25,7 @@ function Signup() {
                 body: JSON.stringify({ username, email, password })
             });
             const data = await res.json();
-            if (data.error) return setError(data.error);
+            if (data.error) { setError(data.error); setLoading(false); return; }
             localStorage.setItem("token", data.token);
             localStorage.setItem("username", data.username);
             setUser({ token: data.token, username: data.username });
@@ -30,13 +34,14 @@ function Signup() {
         } catch (err) {
             setError("Something went wrong");
         }
+        setLoading(false);
     };
 
     return (
         <div className="authPage">
             <div className="authBox">
                 <div className="authLogo">
-                    <img src={sigmaLogo} alt="gpt logo" />
+                    <img src={sigmaLogo} alt="SigmaGPT logo" />
                 </div>
                 <h2>Create account</h2>
                 <p className="authSubtitle">Sign up for SigmaGPT</p>
@@ -44,16 +49,43 @@ function Signup() {
                 {error && <p className="authError">{error}</p>}
 
                 <div className="authInputGroup">
-                    <input className="authInput" type="text" placeholder="Username"
-                        value={username} onChange={(e) => setUsername(e.target.value)} />
-                    <input className="authInput" type="email" placeholder="Email address"
-                        value={email} onChange={(e) => setEmail(e.target.value)} />
-                    <input className="authInput" type="password" placeholder="Password"
-                        value={password} onChange={(e) => setPassword(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" ? handleSignup() : ""} />
+                    <input
+                        className="authInput"
+                        type="text"
+                        placeholder="Username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
+                    <input
+                        className="authInput"
+                        type="email"
+                        placeholder="Email address"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <div className="passwordWrapper">
+                        <input
+                            className="authInput"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" ? handleSignup() : ""}
+                        />
+                        <button
+                            className="showHideBtn"
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            tabIndex={-1}
+                        >
+                            <i className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                        </button>
+                    </div>
                 </div>
 
-                <button className="authBtn" onClick={handleSignup}>Sign up</button>
+                <button className="authBtn" onClick={handleSignup} disabled={loading}>
+                    {loading ? <span className="authSpinner"></span> : "Sign up"}
+                </button>
 
                 <p className="authSwitch">
                     Already have an account? <Link to="/login">Log in</Link>

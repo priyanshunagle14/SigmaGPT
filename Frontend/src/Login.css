@@ -6,11 +6,24 @@
 
 .authPage {
     background-color: #212121;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     font-family: 'Segoe UI', sans-serif;
+    padding: 1rem;
+}
+
+/* entrance animation */
+@keyframes authFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .authBox {
@@ -25,6 +38,7 @@
     gap: 1.2rem;
     border: 1px solid #3a3a3a;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: authFadeIn 0.35s ease both;
 }
 
 .authLogo {
@@ -32,19 +46,6 @@
     justify-content: center;
     width: 100%;
     margin-bottom: 0.5rem;
-}
-
-.authLogoCircle {
-    width: 52px;
-    height: 52px;
-    background-color: #fff;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.6rem;
-    font-weight: bold;
-    color: #000;
 }
 
 .authBox h2 {
@@ -90,6 +91,36 @@
     background-color: #222;
 }
 
+/* password show/hide wrapper */
+.passwordWrapper {
+    position: relative;
+    width: 100%;
+}
+
+.passwordWrapper .authInput {
+    padding-right: 48px;
+}
+
+.showHideBtn {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #666;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+.showHideBtn:hover {
+    color: #aaa;
+}
+
 .authBtn {
     background-color: #fff;
     color: #000;
@@ -101,14 +132,38 @@
     cursor: pointer;
     transition: background-color 0.2s, transform 0.1s;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
 }
 
-.authBtn:hover {
+.authBtn:hover:not(:disabled) {
     background-color: #e8e8e8;
 }
 
-.authBtn:active {
+.authBtn:active:not(:disabled) {
     transform: scale(0.98);
+}
+
+.authBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* spinner inside button */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.authSpinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
 }
 
 .authError {
@@ -137,4 +192,27 @@
 
 .authSwitch a:hover {
     text-decoration: underline;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .authBox {
+        padding: 2rem 1.5rem;
+        border-radius: 16px;
+        gap: 1rem;
+    }
+
+    .authBox h2 {
+        font-size: 1.3rem;
+    }
+
+    .authInput {
+        padding: 12px 14px;
+        font-size: 16px; /* prevents iOS zoom */
+    }
+
+    .authBtn {
+        padding: 13px;
+        font-size: 0.9rem;
+    }
 }

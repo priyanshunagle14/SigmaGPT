@@ -1,19 +1,23 @@
 import "./ChatWindow.css";
 import Chat from "./Chat.jsx";
 import { MyContext } from "./MyContext.jsx";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { ScaleLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
 
 function ChatWindow() {
-    const { prompt, setPrompt, reply, setReply, currThreadId, setPrevChats, setNewChat, user, setUser, toast, showToast, setAllThreads } = useContext(MyContext);
+    const { prompt, setPrompt, reply, setReply, currThreadId, setPrevChats, setNewChat, user, setUser, toast, showToast, setAllThreads, sidebarOpen, setSidebarOpen } = useContext(MyContext);
+
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const textareaRef = useRef(null);
     const navigate = useNavigate();
 
     const getReply = async () => {
+        if (!prompt.trim()) return;
         setLoading(true);
         setNewChat(false);
+        if (textareaRef.current) textareaRef.current.style.height = "auto";
 
         const options = {
             method: "POST",
@@ -61,6 +65,9 @@ function ChatWindow() {
             {toast && <div className="toast">{toast}</div>}
 
             <div className="navbar">
+                <button className="menuBtn" onClick={() => setSidebarOpen(true)}>
+                    <i className="fa-solid fa-bars"></i>
+                </button>
                 <span>SigmaGPT <i className="fa-solid fa-chevron-down"></i></span>
                 <div className="userIconDiv" onClick={() => setIsOpen(!isOpen)}>
                     <span className="userIcon"><i className="fa-solid fa-user"></i></span>
@@ -85,15 +92,30 @@ function ChatWindow() {
             }
 
             <Chat />
-            <ScaleLoader color="#fff" loading={loading} />
+            <div className="loader">
+                <ScaleLoader color="#fff" loading={loading} />
+            </div>
 
             <div className="chatInput">
                 <div className="inputBox">
-                    <input
+                    <textarea
+                        ref={textareaRef}
+                        className="promptTextarea"
                         placeholder="Ask anything"
                         value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' ? getReply() : ''}
+                        rows={1}
+                        onChange={(e) => {
+                            setPrompt(e.target.value);
+                            const ta = textareaRef.current;
+                            ta.style.height = "auto";
+                            ta.style.height = Math.min(ta.scrollHeight, 200) + "px";
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault();
+                                getReply();
+                            }
+                        }}
                     />
                     <div id="submit" onClick={getReply}>
                         <i className="fa-solid fa-paper-plane"></i>

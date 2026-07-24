@@ -1,13 +1,14 @@
 .chatWindow {
     background-color: #212121;
-    height: 100vh;
+    min-height: 100vh;
     width: 100%;
     display: flex;
+    flex: 1;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
     text-align: center;
-    position: relative; 
+    position: relative;
 }
 
 /* navbar */
@@ -16,14 +17,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0.75rem 1rem;
 }
 
-.navbar span {
-    margin: 1rem 2rem;
-}
-
+.navbar span,
 .userIconDiv {
-    margin: 1rem 2rem;
+    margin: 0;
 }
 
 .userIcon {
@@ -37,6 +36,23 @@
     cursor: pointer;
 }
 
+/* hamburger — hidden on desktop, shown on mobile */
+.menuBtn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 0;
+}
+
+@media (max-width: 768px) {
+    .menuBtn {
+        display: block;
+    }
+}
+
 /* chat input */
 .chatInput {
     width: 100%;
@@ -44,6 +60,10 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    position: sticky;
+    bottom: 0;
+    background: #212121;
+    padding-bottom: 8px;
 }
 
 .inputBox {
@@ -53,24 +73,36 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0 1rem;
 }
 
-input {
+.promptTextarea {
     width: 100%;
     border: none;
     background-color: rgba(255, 255, 255, 0.05);
-    padding: 20px;
-    font-size: 0.8rem;
+    padding: 16px 52px 16px 20px;
+    font-size: 0.9rem;
     border-radius: 14px;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.5;
+    min-height: 52px;
+    max-height: 200px;
+    font-family: inherit;
+    color: #ececec;
     box-shadow: rgba(0, 0, 0, 0.05) 0 54px 55px,
-                rgba(0, 0, 0, 0.05) 0 -12px 30px,
-                rgba(0, 0, 0, 0.05) 0 4px 6px,
-                rgba(0, 0, 0, 0.05) 0 12px 3px,
-                rgba(0, 0, 0, 0.05) 0 -3px 5px;
+        rgba(0, 0, 0, 0.05) 0 -12px 30px,
+        rgba(0, 0, 0, 0.05) 0 4px 6px,
+        rgba(0, 0, 0, 0.05) 0 12px 3px,
+        rgba(0, 0, 0, 0.05) 0 -3px 5px;
 }
 
-input:focus {
+.promptTextarea:focus {
     outline: none;
+}
+
+.promptTextarea::placeholder {
+    color: #666;
 }
 
 #submit {
@@ -79,7 +111,7 @@ input:focus {
     width: 35px;
     font-size: 20px;
     position: absolute;
-    right: 15px;
+    right: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -97,10 +129,10 @@ input:focus {
 
 /* dropdown */
 .dropDown {
-    position: fixed; 
-    top: 60px;        
+    position: fixed;
+    top: 60px;
     right: 1rem;
-    width: 150px;
+    width: min(180px, 90vw);
     background-color: #323232;
     padding: 0.3rem 0.5rem;
     border-radius: 6px;
@@ -124,8 +156,10 @@ input:focus {
 /* toast */
 .toast {
     position: fixed;
-    top: 2rem;  
-    left: 57%;
+    top: 2rem;
+    left: 50%;
+    width: max-content;
+    max-width: 90%;
     transform: translateX(-50%);
     background-color: #323232;
     color: #fff;
@@ -133,13 +167,66 @@ input:focus {
     border-radius: 12px;
     font-size: 0.9rem;
     z-index: 9999;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     animation: fadeInOut 3s ease forwards;
 }
 
+.loader {
+    min-height: 40px;
+}
+
 @keyframes fadeInOut {
-    0% { opacity: 0; transform: translateX(-50%) translateY(-10px); } 
-    15% { opacity: 1; transform: translateX(-50%) translateY(0); }
-    80% { opacity: 1; }
-    100% { opacity: 0; }
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+
+    15% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@media (max-width:768px) {
+
+    .chatWindow {
+        padding: 0;
+    }
+
+    .navbar {
+        padding: 0.75rem 1rem;
+    }
+
+    .inputBox {
+        padding: 0 0.75rem;
+    }
+
+    .promptTextarea {
+        padding: 13px 48px 13px 16px;
+        font-size: 15px;
+    }
+
+    .info {
+        font-size: 12px;
+        padding: 8px 16px;
+    }
+
+    .dropDown {
+        right: 10px;
+        width: 170px;
+    }
+
+    .toast {
+        left: 50%;
+        max-width: 90%;
+    }
+
 }
