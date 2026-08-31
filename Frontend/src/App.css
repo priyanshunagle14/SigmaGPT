@@ -10,7 +10,7 @@ body,
     margin: 0;
     padding: 0;
     width: 100%;
-    min-height: 100vh;
+    height: 100%;
 }
 
 body {
@@ -21,7 +21,9 @@ body {
 .app {
     display: flex;
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
+    min-height: 0;
+    overflow: hidden;
     background-color: #212121;
 }
 
@@ -35,8 +37,11 @@ body {
 .main-content {
     flex: 1;
     display: flex;
+    flex-direction: column;
     min-width: 0;
-    /* prevents overflow */
+    min-height: 0;
+    height: 100vh;
+    overflow: hidden;
 }
 
 /* overlay — dims background when sidebar is open on mobile */

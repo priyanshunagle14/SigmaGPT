@@ -1,12 +1,16 @@
 .chats {
     max-width: 900px;
     width: 100%;
-    height: calc(100vh - 180px);
+
+    flex: 1;
+    min-height: 0;
+
     overflow-y: auto;
+
     padding: 1rem 2rem;
+
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-    flex: 1;
 }
 
 .chats::-webkit-scrollbar {
@@ -141,4 +145,116 @@ table {
         font-size: clamp(1.6rem, 5vw, 2.5rem);
     }
 
+}
+/* EasyUI Orbital Loading Ring */
+
+.orbital-loading-ring {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fafafa;
+    user-select: none;
+}
+
+.orbital-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.orbital-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.orbital-inner {
+    position: absolute;
+    inset: 18%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.orbital-dot {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.orbital-dot-large {
+    top: -4px;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    transform: translateX(-50%);
+    background: #fff;
+    box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.6);
+}
+
+.orbital-dot-small {
+    bottom: -2px;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.orbital-dot-medium {
+    top: -4px;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    transform: translateX(-50%);
+    background: #d4d4d4;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+.orbital-dot-tiny {
+    top: 50%;
+    right: -4px;
+    width: 6px;
+    height: 6px;
+    transform: translateY(-50%);
+    background: rgba(161, 161, 170, 0.5);
+}
+
+.orbital-core {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
+}
+
+.orbital-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+/* ── SigmaGPT Orbital Loading ── */
+
+.loadingMessage {
+    display: flex;
+    align-items: center;
+    min-height: 50px;
+    margin-bottom: 1.5rem;
+}
+
+.disabledSubmit {
+    opacity: 0.5;
+    pointer-events: none;
 }
