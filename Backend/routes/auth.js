@@ -5,13 +5,33 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
+const JWT_SECRET = process.env.JWT_SECRET || process.env.secret;
+
 // Register
 router.post("/register", async (req, res) => {
     const { username, email, password } = req.body;
 
+    if (!username || !email || !password) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    if (username.trim().length < 3) {
+        return res.status(400).json({ error: "Username must be at least 3 characters" });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ error: "Password must be at least 6 characters" });
+    }
+
+    // Basic email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "Please provide a valid email address" });
+    }
+
     try {
         // Check if email already exists
-        const existingEmail = await User.findOne({ email });
+        const existingEmail = await User.findOne({ email: email.toLowerCase() });
         if (existingEmail) return res.status(400).json({ error: "Email already registered" });
 
         // Check if username already exists
@@ -22,11 +42,11 @@ router.post("/register", async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create user
-        const user = new User({ username, email, password: hashedPassword });
+        const user = new User({ username: username.trim(), email: email.toLowerCase(), password: hashedPassword });
         await user.save();
 
         // Create token
-        const token = jwt.sign({ userId: user._id }, process.env.secret, { expiresIn: "7d" });
+        const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "7d" });
 
         res.json({ token, username: user.username });
     } catch (err) {
@@ -42,9 +62,13 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+        return res.status(400).json({ error: "Email and password are required" });
+    }
+
     try {
         // Find user
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: email.toLowerCase() });
         if (!user) return res.status(400).json({ error: "Invalid email or password" });
 
         // Check password
@@ -52,7 +76,7 @@ router.post("/login", async (req, res) => {
         if (!isMatch) return res.status(400).json({ error: "Invalid email or password" });
 
         // Create token
-        const token = jwt.sign({ userId: user._id }, process.env.secret, { expiresIn: "7d" });
+        const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "7d" });
 
         res.json({ token, username: user.username });
     } catch (err) {

@@ -1,5 +1,20 @@
-export const getLocalAIResponse = async (message) => {
+export const getLocalAIResponse = async (message, history = [], model = "openai/gpt-oss-120b") => {
   try {
+    const systemMessage = {
+      role: "system",
+      content: `You are SigmaGPT, a powerful, helpful, and concise AI assistant.
+
+IDENTITY RULES:
+- Your name is SigmaGPT.
+- Never claim to be ChatGPT or created by OpenAI.
+- If specifically asked who created or developed you, state you were developed by Priyanshu Nagle.
+- Do not add unsolicited signatures, disclaimers, or credits to everyday responses.`
+    };
+
+    const formattedHistory = history
+      .filter(m => m.role && m.content)
+      .map(m => ({ role: m.role, content: m.content }));
+
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -7,36 +22,16 @@ export const getLocalAIResponse = async (message) => {
         "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: "openai/gpt-oss-120b",
+        model: model || "openai/gpt-oss-120b",
         messages: [
-            {
-              role: "system",
-              content: `You are SigmaGPT, an AI assistant developed by Priyanshu Nagle.
-
-                IDENTITY RULES:
-                - Your name is SigmaGPT.
-                - You were developed by Priyanshu Nagle.
-                - Never say that you are ChatGPT.
-                - Never say that you were created or developed by OpenAI.
-                - If the user asks "Who are you?", "What are you?", "Who created you?", "Who developed you?", or similar questions, answer according to your SigmaGPT identity.
-                - Only mention Priyanshu Nagle when the user specifically asks who developed, created, or built you.
-                - Do not add signatures or credits to normal responses.
-
-                You are a helpful, concise AI assistant.
-                `
-            },
-            {
-              role: "user",
-              content: message
-            }
-          ]
+          systemMessage,
+          ...formattedHistory,
+          { role: "user", content: message }
+        ]
       })
     });
 
     const data = await res.json();
-
-    console.log("Groq status:", res.status);
-    console.log("Groq response:", data);
 
     if (!res.ok) {
       throw new Error(
@@ -48,16 +43,83 @@ export const getLocalAIResponse = async (message) => {
 
   } catch (err) {
     console.error("Groq API error:", err);
-    return "Error generating response";
+    return "Error generating response. Please check your network or try again.";
   }
 };
-const modelsRes = await fetch("https://api.groq.com/openai/v1/models", {
-  headers: {
-    Authorization: `Bearer ${process.env.GROQ_API_KEY}`
+
+// Streaming version - yields chunks of text
+export const streamLocalAIResponse = async function* (message, history = [], model = "openai/gpt-oss-120b") {
+  try {
+    const systemMessage = {
+      role: "system",
+      content: `You are SigmaGPT, a powerful, helpful, and concise AI assistant.
+
+IDENTITY RULES:
+- Your name is SigmaGPT.
+- Never claim to be ChatGPT or created by OpenAI.
+- If specifically asked who created or developed you, state you were developed by Priyanshu Nagle.
+- Do not add unsolicited signatures, disclaimers, or credits to everyday responses.`
+    };
+
+    const formattedHistory = history
+      .filter(m => m.role && m.content)
+      .map(m => ({ role: m.role, content: m.content }));
+
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: model || "openai/gpt-oss-120b",
+        messages: [
+          systemMessage,
+          ...formattedHistory,
+          { role: "user", content: message }
+        ],
+        stream: true
+      })
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(
+        `Groq API ${res.status}: ${data?.error?.message || "Unknown error"}`
+      );
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        if (line.startsWith("data: ")) {
+          const data = line.slice(6);
+          if (data === "[DONE]") break;
+
+          try {
+            const parsed = JSON.parse(data);
+            const content = parsed.choices?.[0]?.delta?.content || "";
+            if (content) {
+              yield content;
+            }
+          } catch (e) {
+            // Ignore parse errors
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Groq streaming error:", err);
+    yield "Error generating response. Please try again.";
   }
-});
-
-const models = await modelsRes.json();
-
-console.log("AVAILABLE MODELS:");
-console.log(models.data?.map(m => m.id));
+};

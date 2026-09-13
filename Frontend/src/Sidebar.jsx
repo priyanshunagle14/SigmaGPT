@@ -1,118 +1,115 @@
 import "./Sidebar.css";
-import { useContext, useEffect } from "react";
-import { MyContext } from "./MyContext.jsx";
-import { v1 as uuidv1 } from "uuid";
+import React from "react";
+import { useAuth } from "./context/AuthContext";
+import { useChat } from "./context/ChatContext";
 import { useNavigate } from "react-router-dom";
 import sigmaLogo from "./assets/sigmagpt-logo.svg";
 
 function Sidebar() {
+    const { user } = useAuth();
     const {
         allThreads,
-        setAllThreads,
         currThreadId,
-        setNewChat,
-        setPrompt,
-        setReply,
-        setCurrThreadId,
-        setPrevChats,
-        user,
         sidebarOpen,
-        setSidebarOpen
-    } = useContext(MyContext);
+        setSidebarOpen,
+        createNewChat,
+        changeThread,
+        deleteThread,
+        loadingThreads,
+    } = useChat();
     const navigate = useNavigate();
 
-    const getAllThreads = async () => {
-        if (!user?.token) return; // guest - don't fetch
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/thread`, {
-                headers: { "Authorization": `Bearer ${user.token}` }
-            });
-            const res = await response.json();
-            const filteredData = res.map(thread => ({ threadId: thread.threadId, title: thread.title }));
-            setAllThreads(filteredData);
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
-    useEffect(() => {
-        getAllThreads();
-    }, [currThreadId, user]);
-
-    const createNewChat = () => {
-        setNewChat(true);
-        setPrompt("");
-        setReply(null);
-        setCurrThreadId(uuidv1());
-        setPrevChats([]);
-        setSidebarOpen(false);
-    };
-
-    const changeThread = async (newThreadId) => {
-        setCurrThreadId(newThreadId);
-        setSidebarOpen(false);
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/thread/${newThreadId}`, {
-                headers: { "Authorization": `Bearer ${user.token}` }
-            });
-            const res = await response.json();
-            setPrevChats(res);
-            setNewChat(false);
-            setReply(null);
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
-    const deleteThread = async (threadId) => {
-        try {
-            await fetch(`${import.meta.env.VITE_API_URL}/api/thread/${threadId}`, {
-                method: "DELETE",
-                headers: { "Authorization": `Bearer ${user.token}` }
-            });
-            setAllThreads(prev => prev.filter(thread => thread.threadId !== threadId));
-            if (threadId === currThreadId) createNewChat();
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
     return (
-        <section className={`sidebar ${sidebarOpen ? "open" : ""}`}>
-            <button onClick={createNewChat}>
-                <img src={sigmaLogo} alt="gpt logo" />
-                <span><i className="fa-solid fa-pen-to-square"></i></span>
-            </button>
+        <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+            <div className="sidebarHeader">
+                <div className="sidebarBrand">
+                    <img src={sigmaLogo} alt="SigmaGPT" className="sidebarLogo" />
+                    <span className="brandTitle">SigmaGPT</span>
+                </div>
+                <button
+                    className="newChatBtn"
+                    onClick={createNewChat}
+                    title="New chat"
+                >
+                    <i className="fa-solid fa-pen-to-square"></i>
+                </button>
+            </div>
 
             {!user?.token ? (
                 <div className="guestMessage">
-                    <p>Log in to save your chats</p>
-                    <button className="loginBtn" onClick={() => navigate("/login")}>Log in</button>
-                    <button className="signupBtn" onClick={() => navigate("/signup")}>Sign up</button>
+                    <div className="guestCard">
+                        <i className="fa-solid fa-cloud-arrow-up guestIcon"></i>
+                        <h4>Save your conversation history</h4>
+                        <p>Sign in to sync your chats across devices and access previous conversations.</p>
+                        <div className="guestActions">
+                            <button className="loginBtn" onClick={() => navigate("/login")}>
+                                Log in
+                            </button>
+                            <button className="signupBtn" onClick={() => navigate("/signup")}>
+                                Sign up
+                            </button>
+                        </div>
+                    </div>
                 </div>
             ) : (
-                <ul className="history">
-                    {allThreads?.map((thread, idx) => (
-                        <li key={idx}
-                            onClick={() => changeThread(thread.threadId)}
-                            className={thread.threadId === currThreadId ? "highlighted" : ""}
-                        >
-                            {thread.title}
-                            <i className="fa-solid fa-trash"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    deleteThread(thread.threadId);
-                                }}
-                            ></i>
-                        </li>
-                    ))}
-                </ul>
+                <div className="historySection">
+                    <span className="historyHeading">Recent Chats</span>
+                    {loadingThreads ? (
+                        <div className="historyLoading">
+                            <div className="skeletonRow"></div>
+                            <div className="skeletonRow short"></div>
+                            <div className="skeletonRow"></div>
+                        </div>
+                    ) : allThreads?.length === 0 ? (
+                        <div className="emptyHistory">
+                            <p>No previous chats</p>
+                        </div>
+                    ) : (
+                        <ul className="history">
+                            {allThreads.map((thread) => (
+                                <li
+                                    key={thread.threadId}
+                                    onClick={() => changeThread(thread.threadId)}
+                                    className={thread.threadId === currThreadId ? "highlighted" : ""}
+                                    title={thread.title}
+                                >
+                                    <i className="fa-regular fa-message threadIcon"></i>
+                                    <span className="threadTitle">{thread.title}</span>
+                                    <button
+                                        className="deleteBtn"
+                                        aria-label="Delete chat"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            deleteThread(thread.threadId);
+                                        }}
+                                    >
+                                        <i className="fa-solid fa-trash"></i>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
             )}
 
-            <div className="sign">
-                <p>By Priyanshu Nagle &hearts;</p>
+            <div className="sidebarFooter">
+                {user?.token ? (
+                    <div className="userProfileCard">
+                        <div className="userAvatar">
+                            {user.username ? user.username[0].toUpperCase() : "U"}
+                        </div>
+                        <div className="userInfo">
+                            <span className="profileUsername">{user.username}</span>
+                            <span className="profileTier">Free Plan</span>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="footerAttribution">
+                        <span>Powered by Groq LLMs</span>
+                    </div>
+                )}
             </div>
-        </section>
+        </aside>
     );
 }
 

@@ -1,249 +1,184 @@
 import "./ChatWindow.css";
 import Chat from "./Chat.jsx";
-import { MyContext } from "./MyContext.jsx";
-import { useContext, useState, useEffect, useRef } from "react";
+import { useAuth } from "./context/AuthContext";
+import { useChat } from "./context/ChatContext";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 function ChatWindow() {
+    const { user, logoutUser, toast } = useAuth();
     const {
         prompt,
         setPrompt,
         reply,
-        setReply,
-        currThreadId,
+        loading,
+        sendMessage,
         setPrevChats,
-        setNewChat,
-        user,
-        setUser,
-        toast,
-        showToast,
-        setAllThreads,
         setSidebarOpen
-    } = useContext(MyContext);
+    } = useChat();
 
-    const [loading, setLoading] = useState(false);
-    const [isOpen, setIsOpen] = useState(false);
-
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     const textareaRef = useRef(null);
+    const dropdownRef = useRef(null);
     const navigate = useNavigate();
 
-    const getReply = async () => {
-        if (!prompt.trim() || loading) return;
-
-        setLoading(true);
-        setReply(null);
-        setNewChat(false);
-
-        if (textareaRef.current) {
-            textareaRef.current.style.height = "auto";
-        }
-
-        const options = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                ...(user?.token && {
-                    "Authorization": `Bearer ${user.token}`
-                })
-            },
-            body: JSON.stringify({
-                message: prompt,
-                threadId: currThreadId
-            })
+    // Close dropdown on outside click
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setDropdownOpen(false);
+            }
         };
 
-        try {
-            const response = await fetch(
-                `${import.meta.env.VITE_API_URL}/api/chat`,
-                options
-            );
-
-            const res = await response.json();
-
-            if (!response.ok) {
-                throw new Error(res.error || "Something went wrong");
-            }
-
-            setReply(res.reply);
-
-        } catch (err) {
-            console.error("Chat error:", err);
-            setReply("Sorry, something went wrong. Please try again.");
-        } finally {
-            setLoading(false);
+        if (dropdownOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
         }
-    };
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [dropdownOpen]);
 
+    // Append newly completed message to history
     useEffect(() => {
         if (prompt && reply) {
-            setPrevChats(prevChats => [
-                ...prevChats,
+            setPrevChats(prev => [
+                ...prev,
                 { role: "user", content: prompt },
                 { role: "assistant", content: reply }
             ]);
-        }
-
-        if (reply) {
             setPrompt("");
         }
     }, [reply]);
 
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("username");
-
-        setUser({
-            token: null,
-            username: null
-        });
-
-        setIsOpen(false);
-        showToast("You're logged out 👋");
-
-        setPrevChats([]);
-        setAllThreads([]);
-        setNewChat(true);
+    const handleSend = () => {
+        if (!prompt.trim() || loading) return;
+        sendMessage(prompt);
+        if (textareaRef.current) {
+            textareaRef.current.style.height = "auto";
+        }
     };
 
     return (
         <div className="chatWindow">
+            {toast && <div className="toast">{toast}</div>}
 
-            {toast && (
-                <div className="toast">
-                    {toast}
-                </div>
-            )}
-
-            <div className="navbar">
-
+            <header className="navbar">
                 <button
                     className="menuBtn"
                     onClick={() => setSidebarOpen(true)}
+                    aria-label="Open sidebar"
                 >
                     <i className="fa-solid fa-bars"></i>
                 </button>
 
-                <span>
-                    SigmaGPT{" "}
-                    <i className="fa-solid fa-chevron-down"></i>
-                </span>
-
-                <div
-                    className="userIconDiv"
-                    onClick={() => setIsOpen(!isOpen)}
-                >
-                    <span className="userIcon">
-                        <i className="fa-solid fa-user"></i>
-                    </span>
+                <div className="brandBadge">
+                    <span>SigmaGPT</span>
+                    <span className="modelTag">GPT-OSS 120B</span>
                 </div>
 
-            </div>
+                <div className="userMenuWrapper" ref={dropdownRef}>
+                    <div
+                        className="userIconDiv"
+                        onClick={() => setDropdownOpen(prev => !prev)}
+                    >
+                        <span className="userIcon">
+                            {user?.username ? user.username[0].toUpperCase() : <i className="fa-solid fa-user"></i>}
+                        </span>
+                    </div>
 
-            {isOpen && (
-                <div className="dropDown">
+                    {dropdownOpen && (
+                        <div className="dropDown">
+                            {user?.token ? (
+                                <>
+                                    <div className="dropDownUserHeader">
+                                        <p className="dropDownUsername">{user.username}</p>
+                                        <p className="dropDownStatus">Active Account</p>
+                                    </div>
+                                    <div className="dropDownDivider" />
+                                    <div
+                                        className="dropDownItem logoutItem"
+                                        onClick={() => {
+                                            logoutUser();
+                                            setDropdownOpen(false);
+                                        }}
+                                    >
+                                        <i className="fa-solid fa-arrow-right-from-bracket"></i>
+                                        <span>Log out</span>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div
+                                        className="dropDownItem"
+                                        onClick={() => {
+                                            navigate("/login");
+                                            setDropdownOpen(false);
+                                        }}
+                                    >
+                                        <i className="fa-solid fa-arrow-right-to-bracket"></i>
+                                        <span>Log in</span>
+                                    </div>
 
-                    {user?.token ? (
-                        <>
-                            <div className="dropDownItem">
-                                <i className="fa-solid fa-user"></i>{" "}
-                                {user.username}
-                            </div>
-
-                            <div className="dropDownItem">
-                                <i className="fa-solid fa-gear"></i>{" "}
-                                Settings
-                            </div>
-
-                            <div
-                                className="dropDownItem"
-                                onClick={handleLogout}
-                            >
-                                <i className="fa-solid fa-arrow-right-from-bracket"></i>{" "}
-                                Log out
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            <div
-                                className="dropDownItem"
-                                onClick={() => {
-                                    navigate("/login");
-                                    setIsOpen(false);
-                                }}
-                            >
-                                <i className="fa-solid fa-arrow-right-to-bracket"></i>{" "}
-                                Log in
-                            </div>
-
-                            <div
-                                className="dropDownItem"
-                                onClick={() => {
-                                    navigate("/signup");
-                                    setIsOpen(false);
-                                }}
-                            >
-                                <i className="fa-solid fa-user-plus"></i>{" "}
-                                Sign up
-                            </div>
-                        </>
+                                    <div
+                                        className="dropDownItem"
+                                        onClick={() => {
+                                            navigate("/signup");
+                                            setDropdownOpen(false);
+                                        }}
+                                    >
+                                        <i className="fa-solid fa-user-plus"></i>
+                                        <span>Sign up</span>
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     )}
-
                 </div>
-            )}
+            </header>
 
-            <Chat loading={loading} />
+            <Chat />
 
             <div className="chatInput">
-
                 <div className="inputBox">
-
                     <textarea
                         ref={textareaRef}
                         className="promptTextarea"
-                        placeholder={
-                            loading
-                                ? "SigmaGPT is thinking..."
-                                : "Ask anything"
-                        }
+                        placeholder={loading ? "SigmaGPT is thinking..." : "Message SigmaGPT..."}
                         value={prompt}
                         disabled={loading}
                         rows={1}
                         onChange={(e) => {
                             setPrompt(e.target.value);
-
                             const ta = textareaRef.current;
-
-                            ta.style.height = "auto";
-                            ta.style.height =
-                                Math.min(ta.scrollHeight, 200) + "px";
+                            if (ta) {
+                                ta.style.height = "auto";
+                                ta.style.height = Math.min(ta.scrollHeight, 200) + "px";
+                            }
                         }}
                         onKeyDown={(e) => {
-                            if (
-                                e.key === "Enter" &&
-                                !e.shiftKey
-                            ) {
+                            if (e.key === "Enter" && !e.shiftKey) {
                                 e.preventDefault();
-                                getReply();
+                                handleSend();
                             }
                         }}
                     />
 
-                    <div
+                    <button
                         id="submit"
-                        onClick={getReply}
-                        className={loading ? "disabledSubmit" : ""}
+                        type="button"
+                        onClick={handleSend}
+                        disabled={loading || !prompt.trim()}
+                        className={loading || !prompt.trim() ? "disabledSubmit" : ""}
+                        aria-label="Send message"
                     >
-                        <i className="fa-solid fa-paper-plane"></i>
-                    </div>
-
+                        <i className="fa-solid fa-arrow-up"></i>
+                    </button>
                 </div>
 
                 <p className="info">
-                    SigmaGPT can make mistakes. Check important info. See Cookie Preferences.
+                    SigmaGPT can produce inaccurate information. Verify critical details independently.
                 </p>
-
             </div>
-
         </div>
     );
 }
